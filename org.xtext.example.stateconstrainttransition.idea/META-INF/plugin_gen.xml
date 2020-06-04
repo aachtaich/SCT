@@ -1,0 +1,93 @@
+<idea-plugin version="2">
+	<extensions defaultExtensionNs="org.eclipse.xtext.idea">
+		<package
+			uri="http://www.xtext.org/example/stateconstrainttransition/StateConstraintTransition"
+			class="org.xtext.example.stateconstrainttransition.stateConstraintTransition.StateConstraintTransitionPackage"
+		/>
+		<resourceFactory 
+			type="sct"
+			class="org.eclipse.xtext.resource.IResourceFactory"
+			factoryClass="org.xtext.example.stateconstrainttransition.idea.StateConstraintTransitionExtensionFactory"
+		/>
+		<resourceServiceProvider
+			uriExtension="sct"
+			class="org.eclipse.xtext.idea.resource.IResourceIdeaServiceProvider"
+			factoryClass="org.xtext.example.stateconstrainttransition.idea.StateConstraintTransitionExtensionFactory"
+		/>
+
+		<lang.setup
+			language="org.xtext.example.stateconstrainttransition.StateConstraintTransition"
+			implementationClass="org.xtext.example.stateconstrainttransition.idea.StateConstraintTransitionIdeaSetup"
+		/>
+	</extensions>
+
+	<extensions defaultExtensionNs="com.intellij">
+		<psi.treeChangePreprocessor implementation="org.xtext.example.stateconstrainttransition.idea.lang.psi.StateConstraintTransitionCodeBlockModificationListener"/>
+
+		<fileTypeFactory implementation="org.xtext.example.stateconstrainttransition.idea.lang.StateConstraintTransitionFileTypeFactory"/>
+		<stubElementTypeHolder class="org.xtext.example.stateconstrainttransition.idea.lang.StateConstraintTransitionElementTypeProvider"/>
+		<lang.ast.factory 
+			language="org.xtext.example.stateconstrainttransition.StateConstraintTransition"
+			factoryClass="org.xtext.example.stateconstrainttransition.idea.StateConstraintTransitionExtensionFactory"
+			implementationClass="org.eclipse.xtext.idea.lang.BaseXtextASTFactory"
+		/>
+		<lang.parserDefinition 
+			language="org.xtext.example.stateconstrainttransition.StateConstraintTransition"
+			factoryClass="org.xtext.example.stateconstrainttransition.idea.StateConstraintTransitionExtensionFactory"
+			implementationClass="org.xtext.example.stateconstrainttransition.idea.lang.parser.StateConstraintTransitionParserDefinition"
+		/>
+		<lang.findUsagesProvider 
+			language="org.xtext.example.stateconstrainttransition.StateConstraintTransition"
+			factoryClass="org.xtext.example.stateconstrainttransition.idea.StateConstraintTransitionExtensionFactory"
+			implementationClass="org.eclipse.xtext.idea.findusages.BaseXtextFindUsageProvider"
+		/>
+		<lang.refactoringSupport 
+			language="org.xtext.example.stateconstrainttransition.StateConstraintTransition"
+			factoryClass="org.xtext.example.stateconstrainttransition.idea.StateConstraintTransitionExtensionFactory"
+			implementationClass="org.eclipse.xtext.idea.refactoring.BaseXtextRefactoringSupportProvider"
+		/>
+		<lang.namesValidator 
+			language="org.xtext.example.stateconstrainttransition.StateConstraintTransition"
+			factoryClass="org.xtext.example.stateconstrainttransition.idea.StateConstraintTransitionExtensionFactory"
+			implementationClass="com.intellij.lang.refactoring.NamesValidator"
+		/>
+		<lang.syntaxHighlighterFactory key="org.xtext.example.stateconstrainttransition.StateConstraintTransition" implementationClass="org.xtext.example.stateconstrainttransition.idea.highlighting.StateConstraintTransitionSyntaxHighlighterFactory" />
+		<lang.braceMatcher 
+			language="org.xtext.example.stateconstrainttransition.StateConstraintTransition"
+			factoryClass="org.xtext.example.stateconstrainttransition.idea.StateConstraintTransitionExtensionFactory"
+			implementationClass="com.intellij.lang.PairedBraceMatcher"
+		/>
+		<annotator 
+			language="org.xtext.example.stateconstrainttransition.StateConstraintTransition"
+			factoryClass="org.xtext.example.stateconstrainttransition.idea.StateConstraintTransitionExtensionFactory"
+			implementationClass="org.eclipse.xtext.idea.annotation.IssueAnnotator"
+		/>
+		<completion.contributor language="org.xtext.example.stateconstrainttransition.StateConstraintTransition" implementationClass="org.xtext.example.stateconstrainttransition.idea.completion.StateConstraintTransitionCompletionContributor"/>
+		<pom.declarationSearcher implementation="org.xtext.example.stateconstrainttransition.idea.lang.pom.StateConstraintTransitionPomDeclarationSearcher"/>
+
+		<lang.psiStructureViewFactory 
+			language="org.xtext.example.stateconstrainttransition.StateConstraintTransition"
+			factoryClass="org.xtext.example.stateconstrainttransition.idea.StateConstraintTransitionExtensionFactory"
+			implementationClass="com.intellij.lang.PsiStructureViewFactory"
+		/>
+		<facetType implementation="org.xtext.example.stateconstrainttransition.idea.facet.StateConstraintTransitionFacetType"/>
+		<lang.documentationProvider 
+			language="org.xtext.example.stateconstrainttransition.StateConstraintTransition"
+			factoryClass="org.xtext.example.stateconstrainttransition.idea.StateConstraintTransitionExtensionFactory"
+			implementationClass="org.eclipse.xtext.idea.documentation.IdeaDocumentationProvider"
+		/>
+		<colorSettingsPage implementation="org.xtext.example.stateconstrainttransition.idea.highlighting.StateConstraintTransitionColorSettingsPage"/>
+		<highlightVisitor implementation="org.xtext.example.stateconstrainttransition.idea.highlighting.StateConstraintTransitionSemanticHighlightVisitor"/>
+
+		<lang.formatter 
+			language="org.xtext.example.stateconstrainttransition.StateConstraintTransition"
+			factoryClass="org.xtext.example.stateconstrainttransition.idea.StateConstraintTransitionExtensionFactory"
+			implementationClass="com.intellij.formatting.FormattingModelBuilder"
+		/>
+		<lang.commenter 
+			language="org.xtext.example.stateconstrainttransition.StateConstraintTransition"
+			factoryClass="org.xtext.example.stateconstrainttransition.idea.StateConstraintTransitionExtensionFactory"
+			implementationClass="com.intellij.lang.CodeDocumentationAwareCommenter"
+		/>
+	</extensions>
+</idea-plugin>

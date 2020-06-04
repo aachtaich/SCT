@@ -1,0 +1,176 @@
+grammar org.xtext.example.stateconstrainttransition.StateConstraintTransition with org.eclipse.xtext.common.Terminals
+
+generate stateConstraintTransition "http://www.xtext.org/example/stateconstrainttransition/StateConstraintTransition"
+
+Model:
+	"stateMachine" name=ID
+	//Variables cretaed for this model, or retrieved from other models
+	variable+=Variable+
+
+	//the constraints generated from external models (they should be flexible)
+	flexConstraints+=(Constraint)*
+
+	//states/transitions that defined the dynamic behavior of the SPL
+	state+=State+
+	transition+=Transition+;
+
+/*--------- Variable declaration ---------*/
+
+//The variable needs more tweeking 
+Variable:
+	(varType=VarType) (context="Param")? (inEnumeration="Enum")? name=ID (isMultiInstanciated=multiple)? (domain=Domain)? (values+=Enumeration)?;
+
+VarType:
+	("String"|"Integer"|"Float"|"Boolean");
+
+multiple:
+	"[" minimum+=min  ","maximum+=max "]";	
+
+Domain:
+	FloatDomain|IntDomain;
+
+FloatDomain:
+	"[" IntValue'.'IntValue ".." IntValue'.'IntValue "]";
+	
+IntDomain:
+	"[" IntValue ".." IntValue "]";
+	
+Enumeration:
+	IntEnumeration|StringEnumeration;
+
+IntEnumeration: 
+    ('{'IntValue (',' IntValue )+ '}' );
+    
+StringEnumeration: 
+	('{' strings (',' strings )+ '}' );
+	
+max:
+   	IntValue;
+min:
+ 	IntValue;
+strings:
+	STRING;
+
+/*--------- The Statemachine ---------*/
+State:
+	(SimpleConstraintState | CompositeState);
+	
+
+Transition:
+	StartTransition | EndTransition | FullTransition;
+	
+StartTransition:
+	"Start" "transition" "to" targetState=[State|FQN] ; 
+
+EndTransition:
+	"End" "transition" "from" sourceState=[State|FQN] ; 
+
+FullTransition:
+	("When" (state=[State|FQN]))? "if" event=Event "transition" "from" (sourceState=[State|FQN]) "to" (targetState=[State|FQN]) ; 
+
+Event:
+	{Event}(evOcc=EventOccurence)? (operator=("\\/"|"/\\"))? (sttOcc=StateOccurence)? ;
+	
+EventOccurence:
+	eventExpression+=Constraint;
+	
+StateOccurence:
+	stateExpression+=StateConstraint;
+
+StateConstraint :
+	Or_state;
+	
+Or_state returns StateConstraint:
+	And_state ({Or_state.left=current} '\\/' ripe=And_state)*;
+
+	
+And_state returns StateConstraint:
+	StateName ({And_state.left=current} '/\\' ripe=StateName)*;
+
+StateName returns StateConstraint:
+	{stateNameRef} value=[State|FQN]"=""1";
+	
+CompositeState : 
+	type="compositeState" name=ID
+	concernlevel+=ConcernLevel+
+	"end_compositeState" endCompositeState=[CompositeState];
+	
+ConcernLevel:
+	"concernLevel" name=ID
+	state+=State+
+	"end_concernLevel" endConcernLevel=[ConcernLevel];	
+	
+SimpleConstraintState: 
+	type="simpleConstraintState" name=ID
+	(newVariable+=Variable)*
+	constraint+=(Constraint)+;
+	
+Constraint :
+	Log_expr ;//| GlobalConstraint;
+
+Log_expr returns Constraint:
+	Or_expr ({Log_expr.left=current} operator=('->'|'<->'|'<-') right=Or_expr)*;
+
+Or_expr returns Constraint:
+	And_expr ({Or_expr.left=current} '/\\' right=And_expr)*;
+
+And_expr returns Constraint:
+	(Compare_expr | GlobalConstraint) ({And_expr.left=current} '\\/' right=Compare_expr)*;
+
+//Not_expr returns Constraint:
+	//{Not_expr} '!' operand=Not_expr | Compare_expr;
+
+Compare_expr returns Constraint:
+	math_expr ({Compare_expr.left=current} operator=('>=' | '<=' | '=' | '!=' | '>' | '<') right=math_expr)*;
+
+math_expr returns Constraint:
+	term( {math_expr.left=current} ('+'|'*') right=term)*;
+
+term returns Constraint:
+	'(' Constraint ')'| {Not} "not" Constraint=term | Atomic;
+	//"(" Atomic( {term.left=current} ('+'|'*') right=Atomic)* ")";
+	//'(' Constraint ')'| Constraint=term | Atomic;
+
+Atomic returns Constraint: 
+	//{Constant} value=Constant | {Var}  (Constant '*')? value=VariableName ('*' Constant )?   ;
+	{Constant} value=Constant | {Var} value=VariableName | {string} value=strings;
+
+VariableName:
+	name=[Variable] ('['instance=IntValue']')?;
+
+	
+GlobalConstraint:
+	group_valuation | group_most_least | Max_Min;
+
+group_most_least :
+	("at_least("|"at_most(") instances=IntValue "," variables=varEnumeration ']' "," atomic=Atomic ")";
+
+group_valuation:
+	"all_equal(" var=varEnumeration "," atomic=Atomic ']'")";
+	
+Max_Min:
+	("maximum(" | "minimum(") var=VariableName "," var=varEnumeration ']' ")";
+	
+varEnumeration: 
+	('[' varName=VariableName (',' varName=VariableName )+ );
+
+FQN: 
+	ID ("." ID)*;
+	
+IntValue :  
+	INT|'0'|'1';
+
+Constant:	
+	INT | INT'.'INT | ('0'|'1');
+
+//The IDs should have different names  
+//The min should be smaller then max
+//All states should have transitions // Warning
+//if the ("[" min  "," max "]")? part of a variable is instantiated, create numerous variables with multiple 
+//Wtree after a multi-instanciated variable
+//EveryConcern Level should start and end with a start:End Transition
+//The variable rule can be less messy, and contrained in the validator, rather than expanded in the grammar
+//The log_expression should be binary
+//a simple state after a composite state that ends with a simple state, how to differenciate between a simple state composing a comp_state, and a sequential simple state
+//include value of enum in expressions
+//The constraint should work with respect to variable types
